@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <PackageId>FreeEcho Window Event</PackageId>
+    <Authors>FreeEcho</Authors>
+    <Company>FreeEcho</Company>
+    <Product>FreeEcho Window Event</Product>
+    <Copyright>© 2021 FreeEcho</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>Z:\AppDevelopment\Library\.Net\ウィンドウのイベント\FEWindowEvent\FEWindowEvent\FEWindowEvent.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>Z:\AppDevelopment\Library\.Net\ウィンドウのイベント\FEWindowEvent\FEWindowEvent\FEWindowEvent.xml</DocumentationFile>
+  </PropertyGroup>
+
+</Project>

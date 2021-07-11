@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Copyright>© 2021 FreeEcho</Copyright>
+    <Authors>FreeEcho</Authors>
+    <Company>FreeEcho</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="FEWindowEvent">
+      <HintPath>..\..\FEWindowEvent\FEWindowEvent\bin\Debug\net5.0\FEWindowEvent.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
