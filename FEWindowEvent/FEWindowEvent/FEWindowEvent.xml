@@ -113,6 +113,7 @@
         <member name="M:FreeEcho.FEWindowEvent.WindowEvent.Hook">
             <summary>
             フック開始
+            「HookWindowEventType」の全て。
             </summary>
         </member>
         <member name="M:FreeEcho.FEWindowEvent.WindowEvent.Hook(FreeEcho.FEWindowEvent.HookWindowEventType)">

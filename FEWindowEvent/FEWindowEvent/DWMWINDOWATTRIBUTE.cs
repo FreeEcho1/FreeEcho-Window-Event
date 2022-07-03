@@ -1,24 +1,20 @@
-﻿namespace FreeEcho
+﻿namespace FreeEcho.FEWindowEvent;
+
+internal enum DWMWINDOWATTRIBUTE : uint
 {
-    namespace FEWindowEvent
-    {
-        internal enum DWMWINDOWATTRIBUTE : uint
-        {
-            NCRenderingEnabled = 1,
-            NCRenderingPolicy,
-            TransitionsForceDisabled,
-            AllowNCPaint,
-            CaptionButtonBounds,
-            NonClientRtlLayout,
-            ForceIconicRepresentation,
-            Flip3DPolicy,
-            ExtendedFrameBounds,
-            HasIconicBitmap,
-            DisallowPeek,
-            ExcludedFromPeek,
-            Cloak,
-            Cloaked,
-            FreezeRepresentation
-        }
-    }
+    NCRenderingEnabled = 1,
+    NCRenderingPolicy,
+    TransitionsForceDisabled,
+    AllowNCPaint,
+    CaptionButtonBounds,
+    NonClientRtlLayout,
+    ForceIconicRepresentation,
+    Flip3DPolicy,
+    ExtendedFrameBounds,
+    HasIconicBitmap,
+    DisallowPeek,
+    ExcludedFromPeek,
+    Cloak,
+    Cloaked,
+    FreezeRepresentation
 }

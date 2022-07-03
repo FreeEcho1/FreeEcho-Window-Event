@@ -1,11 +1,7 @@
-﻿namespace FreeEcho
+﻿namespace FreeEcho.FEWindowEvent;
+
+internal enum GWL : int
 {
-    namespace FEWindowEvent
-    {
-        internal enum GWL : int
-        {
-            GWL_STYLE = -16,
-            GWL_EXSTYLE = -20
-        }
-    }
+    GWL_STYLE = -16,
+    GWL_EXSTYLE = -20
 }

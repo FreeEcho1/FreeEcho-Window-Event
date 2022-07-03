@@ -1,12 +1,8 @@
-﻿namespace FreeEcho
+﻿namespace FreeEcho.FEWindowEvent;
+
+internal enum GetAncestorFlags
 {
-    namespace FEWindowEvent
-    {
-        internal enum GetAncestorFlags
-        {
-            GetParent = 1,
-            GetRoot = 2,
-            GetRootOwner = 3
-        }
-    }
+    GetParent = 1,
+    GetRoot = 2,
+    GetRootOwner = 3
 }
