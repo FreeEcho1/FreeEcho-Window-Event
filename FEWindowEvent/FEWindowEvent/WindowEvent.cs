@@ -1,4 +1,6 @@
-﻿namespace FreeEcho.FEWindowEvent;
+﻿using FEWindowEvent;
+
+namespace FreeEcho.FEWindowEvent;
 
 /// <summary>
 /// ウィンドウイベント
@@ -56,10 +58,15 @@ public class WindowEvent : System.IDisposable
         bool disposing
         )
     {
-        if (Disposed == false)
+        if (Disposed)
+        {
+            return;
+        }
+        if (disposing)
         {
             Unhook();
         }
+        Disposed = true;
     }
 
     /// <summary>
@@ -173,18 +180,23 @@ public class WindowEvent : System.IDisposable
         )
     {
         // ウィンドウではない場合は除外する
-        // 負荷が少なくなる (と思われる) 順番で判定
         if (idObject != (long)OBJID.OBJID_WINDOW)
         {
             return;
         }
-        System.IntPtr rootHwnd;
+
         // 判定できる場合だけ判定する
         switch (eventType)
         {
             case (uint)HOOK_EVENT.EVENT_OBJECT_DESTROY:
-            case (uint)HOOK_EVENT.EVENT_OBJECT_HIDE:
-                rootHwnd = hwnd;
+                if (NativeMethods.IsWindow(hwnd) == false)
+                {
+                    return;
+                }
+                if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_EXSTYLE) & (int)WS_EX.WS_EX_TOOLWINDOW) != 0)
+                {
+                    return;
+                }
                 break;
             default:
                 if (NativeMethods.IsWindowVisible(hwnd) == false
@@ -192,24 +204,27 @@ public class WindowEvent : System.IDisposable
                 {
                     return;
                 }
-                rootHwnd = NativeMethods.GetAncestor(hwnd, GetAncestorFlags.GetRoot);
+                if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_STYLE) & (int)WS.WS_VISIBLE) == 0)
+                {
+                    return;
+                }
+                if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_EXSTYLE) & (int)WS_EX.WS_EX_TOOLWINDOW) != 0)
+                {
+                    return;
+                }
+                // ウィンドウのないUWPアプリかを判定
+                bool isInvisibleUwpApp;
+                NativeMethods.DwmGetWindowAttribute(hwnd, (uint)DWMWINDOWATTRIBUTE.Cloaked, out isInvisibleUwpApp, System.Runtime.InteropServices.Marshal.SizeOf(typeof(bool)));
+                if (isInvisibleUwpApp)
+                {
+                    return;
+                }
                 break;
         }
-        if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_EXSTYLE) & (int)WS_EX.WS_EX_TOOLWINDOW) != 0)
-        {
-            return;
-        }
-        // ウィンドウのないUWPアプリかを判定
-        bool isInvisibleUwpApp;
-        NativeMethods.DwmGetWindowAttribute(hwnd, (uint)DWMWINDOWATTRIBUTE.Cloaked, out isInvisibleUwpApp, System.Runtime.InteropServices.Marshal.SizeOf(typeof(bool)));
-        if (isInvisibleUwpApp)
-        {
-            return;
-        }
-
+        
         WindowEventArgs windowEventArgs = new()
         {
-            Hwnd = rootHwnd
+            Hwnd = hwnd
         };
         switch (eventType)
         {
@@ -246,6 +261,8 @@ public class WindowEvent : System.IDisposable
             case (uint)HOOK_EVENT.EVENT_OBJECT_NAMECHANGE:
                 windowEventArgs.WindowEventType = WindowEventType.NameChange;
                 break;
+            default:
+                return;
         }
         DoWindowEventOccurrence(windowEventArgs);
     }
