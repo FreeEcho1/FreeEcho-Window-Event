@@ -1,60 +1,56 @@
-﻿namespace FEWindowEventSample;
+﻿using System.Runtime.InteropServices;
+using System.Text;
+using System;
+
+namespace FEWindowEventSample;
 
 internal static class NativeMethods
 {
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    public static extern System.IntPtr SetWinEventHook(
-        uint eventMin,
-        uint eventMax,
-        System.IntPtr hmodWinEventProc,
-        NativeMethodsDelegate.WinEventDelegate lpfnWinEventProc,
-        uint idProcess,
-        uint idThread,
-        uint dwFlags
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern int GetWindowText(
+        IntPtr hWnd,
+        [MarshalAs(UnmanagedType.LPWStr), Out] StringBuilder lpString,
+        int nMaxCount
         );
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    public static extern bool UnhookWinEvent(
-        System.IntPtr hWinEventHook
+    [DllImport("user32.dll")]
+    public static extern int GetWindowTextLength(
+        IntPtr hWnd
         );
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
-    public static extern bool IsWindow(
-        System.IntPtr hWnd
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern int GetClassName(
+        IntPtr hWnd,
+        [MarshalAs(UnmanagedType.LPWStr), Out] StringBuilder lpClassName,
+        int nMaxCount
         );
-    [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "GetWindowLong")]
-    private static extern int GetWindowLong32(
-        System.IntPtr hWnd,
-        int nIndex
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern uint GetWindowThreadProcessId(
+        IntPtr hWnd,
+        out int lpdwProcessId
         );
-    [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
-    private static extern System.IntPtr GetWindowLongPtr64(
-        System.IntPtr hWnd,
-        int nIndex
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern IntPtr OpenProcess(
+        uint processAccess,
+        [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle,
+        int processId
         );
-    public static long GetWindowLongPtr(
-        System.IntPtr hWnd,
-        int nIndex
-        )
-    {
-        if (System.IntPtr.Size == 8)
-        {
-            return ((long)GetWindowLongPtr64(hWnd, nIndex));
-        }
-        else
-        {
-            return (GetWindowLong32(hWnd, nIndex));
-        }
-    }
-    [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
-    public static extern int DwmGetWindowAttribute(
-        System.IntPtr hWnd,
-        uint dwAttribute,
-        out bool pvAttribute,
-        int cbAttribute
+    [DllImport("psapi.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool EnumProcessModules(
+        IntPtr hProcess,
+        out IntPtr lphModule,
+        uint cb,
+        [MarshalAs(UnmanagedType.U4)] out uint lpcbNeeded
         );
-    [System.Runtime.InteropServices.DllImport("user32.dll")]
-    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
-    public static extern bool IsWindowVisible(System.IntPtr hWnd);
-    [System.Runtime.InteropServices.DllImport("user32.dll", ExactSpelling = true)]
-    public static extern System.IntPtr GetAncestor(System.IntPtr hwnd, GetAncestorFlags flags);
+    [DllImport("psapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern uint GetModuleFileNameEx(
+        IntPtr hProcess,
+        IntPtr hModule,
+        [MarshalAs(UnmanagedType.LPWStr), Out] StringBuilder lpBaseName,
+        int nSize
+        );
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool CloseHandle(
+        IntPtr hObject
+        );
 }

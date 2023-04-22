@@ -1,6 +1,6 @@
 ﻿namespace FEWindowEventSample;
 
-internal enum GetAncestorFlags
+internal enum GetAncestorFlags : int
 {
     GetParent = 1,
     GetRoot = 2,

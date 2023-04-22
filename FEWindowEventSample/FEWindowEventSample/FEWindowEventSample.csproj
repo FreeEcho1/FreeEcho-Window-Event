@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <Copyright>© 2021 FreeEcho</Copyright>
     <Authors>FreeEcho</Authors>
@@ -10,9 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="FEWindowEvent">
-      <HintPath>..\..\FEWindowEvent\FEWindowEvent\bin\Debug\net5.0\FEWindowEvent.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\FEWindowEvent\FEWindowEvent\FEWindowEvent.csproj" />
   </ItemGroup>
 
 </Project>
