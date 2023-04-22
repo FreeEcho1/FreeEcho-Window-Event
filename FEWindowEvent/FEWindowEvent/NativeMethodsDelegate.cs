@@ -2,7 +2,7 @@
 
 internal static class NativeMethodsDelegate
 {
-    public delegate void WinEventDelegate(
+    public delegate void WinEventProcDelegate(
         System.IntPtr hWinEventHook,
         uint eventType,
         System.IntPtr hwnd,

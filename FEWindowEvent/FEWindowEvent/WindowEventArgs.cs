@@ -10,7 +10,7 @@ public class WindowEventArgs
     /// </summary>
     public System.IntPtr Hwnd;
     /// <summary>
-    /// ウィンドウイベントの種類
+    /// イベントの種類
     /// </summary>
-    public WindowEventType WindowEventType;
+    public uint EventType;
 }

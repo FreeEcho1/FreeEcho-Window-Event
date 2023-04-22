@@ -8,45 +8,45 @@ public enum HookWindowEventType
     /// <summary>
     /// EVENT_SYSTEM_FOREGROUND
     /// </summary>
-    Foreground = 1,
+    Foreground = 0x1,
     /// <summary>
     /// EVENT_SYSTEM_MOVESIZESTART
     /// </summary>
-    MoveSizeStart = 2,
+    MoveSizeStart = 0x2,
     /// <summary>
     /// EVENT_SYSTEM_MOVESIZEEND
     /// </summary>
-    MoveSizeEnd = 4,
+    MoveSizeEnd = 0x4,
     /// <summary>
     /// EVENT_SYSTEM_MINIMIZESTART
     /// </summary>
-    MinimizeStart = 8,
+    MinimizeStart = 0x8,
     /// <summary>
     /// EVENT_SYSTEM_MINIMIZEEND
     /// </summary>
-    MinimizeEnd = 16,
+    MinimizeEnd = 0x10,
     /// <summary>
     /// EVENT_OBJECT_CREATE
     /// </summary>
-    Create = 32,
+    Create = 0x20,
     /// <summary>
     /// EVENT_OBJECT_DESTROY
     /// </summary>
-    Destroy = 64,
+    Destroy = 0x40,
     /// <summary>
     /// EVENT_OBJECT_SHOW
     /// </summary>
-    Show = 128,
+    Show = 0x80,
     /// <summary>
     /// EVENT_OBJECT_HIDE
     /// </summary>
-    Hide = 256,
+    Hide = 0x100,
     /// <summary>
     /// EVENT_OBJECT_LOCATIONCHANGE
     /// </summary>
-    LocationChange = 512,
+    LocationChange = 0x200,
     /// <summary>
     /// EVENT_OBJECT_NAMECHANGE
     /// </summary>
-    NameChange = 1024
+    NameChange = 0x400,
 }

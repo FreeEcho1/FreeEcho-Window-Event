@@ -1,11 +1,11 @@
-﻿using FEWindowEvent;
+﻿using System;
 
 namespace FreeEcho.FEWindowEvent;
 
 /// <summary>
 /// ウィンドウイベント
 /// </summary>
-public class WindowEvent : System.IDisposable
+public class WindowEvent : IDisposable
 {
     /// <summary>
     /// Disposeが呼ばれたかの値 (いいえ「false」/はい「true」)
@@ -14,23 +14,32 @@ public class WindowEvent : System.IDisposable
     /// <summary>
     /// フックハンドル
     /// </summary>
-    private System.Collections.Generic.List<System.IntPtr> Hhook;
+    private readonly System.Collections.Generic.List<IntPtr> Hhook;
     /// <summary>
-    /// Windowsイベントのプロシージャのデリゲート
+    /// WinEventProcのデリゲート
     /// </summary>
-    private NativeMethodsDelegate.WinEventDelegate WindowsEventProcedureDelegate;
+    private readonly NativeMethodsDelegate.WinEventProcDelegate WinEventProcDelegate;
     /// <summary>
-    /// ウィンドウイベント発生のイベント
+    /// イベント発生のイベント
     /// </summary>
-    public event System.EventHandler<WindowEventArgs> WindowEventOccurrence;
+    public event EventHandler<WindowEventArgs> WindowEventOccurrence;
     /// <summary>
-    /// ウィンドウイベント発生のイベントを実行
+    /// イベント発生のイベントを実行
     /// </summary>
     public virtual void DoWindowEventOccurrence(
         WindowEventArgs e
         )
     {
         WindowEventOccurrence?.Invoke(this, e);
+    }
+
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
+    public WindowEvent()
+    {
+        Hhook = new();
+        WinEventProcDelegate = new NativeMethodsDelegate.WinEventProcDelegate(WinEventProc);
     }
 
     /// <summary>
@@ -47,13 +56,13 @@ public class WindowEvent : System.IDisposable
     public void Dispose()
     {
         Dispose(true);
-        System.GC.SuppressFinalize(this);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
     /// 非公開Dispose
     /// </summary>
-    /// <param name="disposing"></param>
+    /// <param name="disposing">disposing</param>
     protected virtual void Dispose(
         bool disposing
         )
@@ -84,63 +93,70 @@ public class WindowEvent : System.IDisposable
     /// <summary>
     /// フック開始
     /// </summary>
-    /// <param name="type">フックするウィンドウイベントの種類</param>
+    /// <param name="type">フックするイベントの種類</param>
     public void Hook(
         HookWindowEventType type
         )
     {
-        if (WindowsEventProcedureDelegate == null)
+        Unhook();
+
+        if ((type & HookWindowEventType.Foreground) == HookWindowEventType.Foreground)
         {
-            WindowsEventProcedureDelegate = new NativeMethodsDelegate.WinEventDelegate(WinEventProc);
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_SYSTEM_FOREGROUND, EVENT_CONSTANTS.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
         }
-        if (Hhook == null)
+        if ((type & HookWindowEventType.MoveSizeStart) == HookWindowEventType.MoveSizeStart)
         {
-            Hhook = new();
-            if ((type & HookWindowEventType.Foreground) == HookWindowEventType.Foreground)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_SYSTEM_FOREGROUND, (uint)HOOK_EVENT.EVENT_SYSTEM_FOREGROUND, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
-            if ((type & HookWindowEventType.MoveSizeStart) == HookWindowEventType.MoveSizeStart)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_SYSTEM_MOVESIZESTART, (uint)HOOK_EVENT.EVENT_SYSTEM_MOVESIZESTART, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
-            if ((type & HookWindowEventType.MoveSizeEnd) == HookWindowEventType.MoveSizeEnd)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_SYSTEM_MOVESIZEEND, (uint)HOOK_EVENT.EVENT_SYSTEM_MOVESIZEEND, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
-            if ((type & HookWindowEventType.MinimizeStart) == HookWindowEventType.MinimizeStart)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_SYSTEM_MINIMIZESTART, (uint)HOOK_EVENT.EVENT_SYSTEM_MINIMIZESTART, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
-            if ((type & HookWindowEventType.MinimizeEnd) == HookWindowEventType.MinimizeEnd)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_SYSTEM_MINIMIZEEND, (uint)HOOK_EVENT.EVENT_SYSTEM_MINIMIZEEND, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
-            if ((type & HookWindowEventType.Create) == HookWindowEventType.Create)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_OBJECT_CREATE, (uint)HOOK_EVENT.EVENT_OBJECT_CREATE, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
-            if ((type & HookWindowEventType.Destroy) == HookWindowEventType.Destroy)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_OBJECT_DESTROY, (uint)HOOK_EVENT.EVENT_OBJECT_DESTROY, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
-            if ((type & HookWindowEventType.Show) == HookWindowEventType.Show)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_OBJECT_SHOW, (uint)HOOK_EVENT.EVENT_OBJECT_SHOW, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
-            if ((type & HookWindowEventType.Hide) == HookWindowEventType.Hide)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_OBJECT_HIDE, (uint)HOOK_EVENT.EVENT_OBJECT_HIDE, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
-            if ((type & HookWindowEventType.LocationChange) == HookWindowEventType.LocationChange)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_OBJECT_LOCATIONCHANGE, (uint)HOOK_EVENT.EVENT_OBJECT_LOCATIONCHANGE, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
-            if ((type & HookWindowEventType.NameChange) == HookWindowEventType.NameChange)
-            {
-                Hhook.Add(NativeMethods.SetWinEventHook((uint)HOOK_EVENT.EVENT_OBJECT_NAMECHANGE, (uint)HOOK_EVENT.EVENT_OBJECT_NAMECHANGE, System.IntPtr.Zero, WindowsEventProcedureDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
-            }
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_SYSTEM_MOVESIZESTART, EVENT_CONSTANTS.EVENT_SYSTEM_MOVESIZESTART, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
         }
+        if ((type & HookWindowEventType.MoveSizeEnd) == HookWindowEventType.MoveSizeEnd)
+        {
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_SYSTEM_MOVESIZEEND, EVENT_CONSTANTS.EVENT_SYSTEM_MOVESIZEEND, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
+        }
+        if ((type & HookWindowEventType.MinimizeStart) == HookWindowEventType.MinimizeStart)
+        {
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_SYSTEM_MINIMIZESTART, EVENT_CONSTANTS.EVENT_SYSTEM_MINIMIZESTART, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
+        }
+        if ((type & HookWindowEventType.MinimizeEnd) == HookWindowEventType.MinimizeEnd)
+        {
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_SYSTEM_MINIMIZEEND, EVENT_CONSTANTS.EVENT_SYSTEM_MINIMIZEEND, System.IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
+        }
+        if ((type & HookWindowEventType.Create) == HookWindowEventType.Create)
+        {
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_OBJECT_CREATE, EVENT_CONSTANTS.EVENT_OBJECT_CREATE, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
+        }
+        if ((type & HookWindowEventType.Destroy) == HookWindowEventType.Destroy)
+        {
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_OBJECT_DESTROY, EVENT_CONSTANTS.EVENT_OBJECT_DESTROY, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
+        }
+        if ((type & HookWindowEventType.Show) == HookWindowEventType.Show)
+        {
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_OBJECT_SHOW, EVENT_CONSTANTS.EVENT_OBJECT_SHOW, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
+        }
+        if ((type & HookWindowEventType.Hide) == HookWindowEventType.Hide)
+        {
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_OBJECT_HIDE, EVENT_CONSTANTS.EVENT_OBJECT_HIDE, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
+        }
+        if ((type & HookWindowEventType.LocationChange) == HookWindowEventType.LocationChange)
+        {
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_OBJECT_LOCATIONCHANGE, EVENT_CONSTANTS.EVENT_OBJECT_LOCATIONCHANGE, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
+        }
+        if ((type & HookWindowEventType.NameChange) == HookWindowEventType.NameChange)
+        {
+            Hhook.Add(NativeMethods.SetWinEventHook(EVENT_CONSTANTS.EVENT_OBJECT_NAMECHANGE, EVENT_CONSTANTS.EVENT_OBJECT_NAMECHANGE, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
+        }
+    }
+
+    /// <summary>
+    /// フック開始
+    /// </summary>
+    /// <param name="eventMin">イベント範囲の最小値</param>
+    /// <param name="eventMax">イベント範囲の最大値</param>
+    public void Hook(
+        uint eventMin,
+        uint eventMax
+        )
+    {
+        Hhook.Add(NativeMethods.SetWinEventHook(eventMin, eventMax, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
     }
 
     /// <summary>
@@ -148,19 +164,15 @@ public class WindowEvent : System.IDisposable
     /// </summary>
     public void Unhook()
     {
-        WindowsEventProcedureDelegate = null;
-        if (Hhook != null)
+        foreach (IntPtr nowHhook in Hhook)
         {
-            foreach (System.IntPtr nowHhook in Hhook)
-            {
-                NativeMethods.UnhookWinEvent(nowHhook);
-            }
-            Hhook = null;
+            NativeMethods.UnhookWinEvent(nowHhook);
         }
+        Hhook.Clear();
     }
 
     /// <summary>
-    /// Windowsイベントのプロシージャ
+    /// イベントのプロシージャ
     /// </summary>
     /// <param name="hWinEventHook"></param>
     /// <param name="eventType"></param>
@@ -170,100 +182,96 @@ public class WindowEvent : System.IDisposable
     /// <param name="dwEventThread"></param>
     /// <param name="dwmsEventTime"></param>
     public void WinEventProc(
-        System.IntPtr hWinEventHook,
+        IntPtr hWinEventHook,
         uint eventType,
-        System.IntPtr hwnd,
+        IntPtr hwnd,
         long idObject,
         long idChild,
         uint dwEventThread,
         uint dwmsEventTime
         )
     {
-        // ウィンドウではない場合は除外する
+        // 除外
         if (idObject != (long)OBJID.OBJID_WINDOW)
         {
             return;
         }
 
-        // 判定できる場合だけ判定する
+        WindowEventArgs windowEventArgs = new()
+        {
+            Hwnd = hwnd,
+            EventType = eventType
+        };
+        DoWindowEventOccurrence(windowEventArgs);
+    }
+
+    /// <summary>
+    /// ウィンドウのハンドルではない場合はウィンドウのハンドルを探して取得
+    /// </summary>
+    /// <param name="hwnd">ウィンドウハンドル</param>
+    /// <param name="eventType">イベント定数</param>
+    /// <returns>ウィンドウのハンドル</returns>
+    public static IntPtr GetWindowHwnd(
+        IntPtr hwnd,
+        uint eventType
+        )
+    {
         switch (eventType)
         {
-            case (uint)HOOK_EVENT.EVENT_OBJECT_DESTROY:
-                if (NativeMethods.IsWindow(hwnd) == false)
+            case EVENT_CONSTANTS.EVENT_OBJECT_SHOW:
+                return NativeMethods.GetAncestor(hwnd, GetAncestorFlags.GetRoot);
+            default:
+                return hwnd;
+        }
+    }
+
+    /// <summary>
+    /// ウィンドウが表示されているか確認
+    /// </summary>
+    /// <param name="hwnd">ウィンドウハンドル</param>
+    /// <param name="eventType">イベント定数</param>
+    /// <returns>ウィンドウが表示されているかの値 (表示されていない「false」/表示されている「true」)</returns>
+    public static bool ConfirmWindowVisible(
+        IntPtr hwnd,
+        uint eventType
+        )
+    {
+        switch (eventType)
+        {
+            case EVENT_CONSTANTS.EVENT_OBJECT_CREATE:
+            case EVENT_CONSTANTS.EVENT_OBJECT_DESTROY:
+                break;
+            case EVENT_CONSTANTS.EVENT_OBJECT_SHOW:
+                if (NativeMethods.IsWindowVisible(hwnd) == false
+                    && NativeMethods.IsWindow(hwnd) == false)
                 {
-                    return;
+                    return false;
                 }
-                if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_EXSTYLE) & (int)WS_EX.WS_EX_TOOLWINDOW) != 0)
+                if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_EXSTYLE) & (int)WS_EX.WS_EX_TOOLWINDOW) == (int)WS_EX.WS_EX_TOOLWINDOW)
                 {
-                    return;
+                    return false;
                 }
                 break;
             default:
                 if (NativeMethods.IsWindowVisible(hwnd) == false
                     && NativeMethods.IsWindow(hwnd) == false)
                 {
-                    return;
+                    return false;
                 }
-                if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_STYLE) & (int)WS.WS_VISIBLE) == 0)
+                if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_EXSTYLE) & (int)WS_EX.WS_EX_TOOLWINDOW) == (int)WS_EX.WS_EX_TOOLWINDOW)
                 {
-                    return;
-                }
-                if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_EXSTYLE) & (int)WS_EX.WS_EX_TOOLWINDOW) != 0)
-                {
-                    return;
+                    return false;
                 }
                 // ウィンドウのないUWPアプリかを判定
                 bool isInvisibleUwpApp;
-                NativeMethods.DwmGetWindowAttribute(hwnd, (uint)DWMWINDOWATTRIBUTE.Cloaked, out isInvisibleUwpApp, System.Runtime.InteropServices.Marshal.SizeOf(typeof(bool)));
+                _ = NativeMethods.DwmGetWindowAttribute(hwnd, (uint)DWMWINDOWATTRIBUTE.Cloaked, out isInvisibleUwpApp, System.Runtime.InteropServices.Marshal.SizeOf(typeof(bool)));
                 if (isInvisibleUwpApp)
                 {
-                    return;
+                    return false;
                 }
                 break;
         }
-        
-        WindowEventArgs windowEventArgs = new()
-        {
-            Hwnd = hwnd
-        };
-        switch (eventType)
-        {
-            case (uint)HOOK_EVENT.EVENT_SYSTEM_FOREGROUND:
-                windowEventArgs.WindowEventType = WindowEventType.Foreground;
-                break;
-            case (uint)HOOK_EVENT.EVENT_SYSTEM_MOVESIZESTART:
-                windowEventArgs.WindowEventType = WindowEventType.MoveSizeStart;
-                break;
-            case (uint)HOOK_EVENT.EVENT_SYSTEM_MOVESIZEEND:
-                windowEventArgs.WindowEventType = WindowEventType.MoveSizeEnd;
-                break;
-            case (uint)HOOK_EVENT.EVENT_SYSTEM_MINIMIZESTART:
-                windowEventArgs.WindowEventType = WindowEventType.MinimizeStart;
-                break;
-            case (uint)HOOK_EVENT.EVENT_SYSTEM_MINIMIZEEND:
-                windowEventArgs.WindowEventType = WindowEventType.MinimizeEnd;
-                break;
-            case (uint)HOOK_EVENT.EVENT_OBJECT_CREATE:
-                windowEventArgs.WindowEventType = WindowEventType.Create;
-                break;
-            case (uint)HOOK_EVENT.EVENT_OBJECT_DESTROY:
-                windowEventArgs.WindowEventType = WindowEventType.Destroy;
-                break;
-            case (uint)HOOK_EVENT.EVENT_OBJECT_SHOW:
-                windowEventArgs.WindowEventType = WindowEventType.Show;
-                break;
-            case (uint)HOOK_EVENT.EVENT_OBJECT_HIDE:
-                windowEventArgs.WindowEventType = WindowEventType.Hide;
-                break;
-            case (uint)HOOK_EVENT.EVENT_OBJECT_LOCATIONCHANGE:
-                windowEventArgs.WindowEventType = WindowEventType.LocationChange;
-                break;
-            case (uint)HOOK_EVENT.EVENT_OBJECT_NAMECHANGE:
-                windowEventArgs.WindowEventType = WindowEventType.NameChange;
-                break;
-            default:
-                return;
-        }
-        DoWindowEventOccurrence(windowEventArgs);
+
+        return true;
     }
 }
