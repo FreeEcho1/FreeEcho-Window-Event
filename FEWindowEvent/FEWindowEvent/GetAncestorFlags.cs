@@ -2,7 +2,7 @@
 
 internal enum GetAncestorFlags
 {
-    GetParent = 1,
-    GetRoot = 2,
-    GetRootOwner = 3
+    GA_PARENT = 1,
+    GA_ROOT = 2,
+    GA_ROOTOWNER = 3
 }

@@ -134,6 +134,21 @@
             EVENT_OBJECT_NAMECHANGE
             </summary>
         </member>
+        <member name="T:FreeEcho.FEWindowEvent.SettingsEventInformation">
+            <summary>
+            設定するイベント情報
+            </summary>
+        </member>
+        <member name="F:FreeEcho.FEWindowEvent.SettingsEventInformation.EventMin">
+            <summary>
+            イベントの範囲内の最小値
+            </summary>
+        </member>
+        <member name="F:FreeEcho.FEWindowEvent.SettingsEventInformation.EventMax">
+            <summary>
+            イベントの範囲内の最大値
+            </summary>
+        </member>
         <member name="T:FreeEcho.FEWindowEvent.WindowEvent">
             <summary>
             ウィンドウイベント
@@ -203,6 +218,12 @@
             </summary>
             <param name="eventMin">イベント範囲の最小値</param>
             <param name="eventMax">イベント範囲の最大値</param>
+        </member>
+        <member name="M:FreeEcho.FEWindowEvent.WindowEvent.Hook(System.Collections.Generic.List{FreeEcho.FEWindowEvent.SettingsEventInformation})">
+            <summary>
+            フック開始
+            </summary>
+            <param name="settingsEventInformation">設定するイベント情報</param>
         </member>
         <member name="M:FreeEcho.FEWindowEvent.WindowEvent.Unhook">
             <summary>

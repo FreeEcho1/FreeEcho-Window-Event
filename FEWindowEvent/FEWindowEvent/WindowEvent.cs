@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace FreeEcho.FEWindowEvent;
 
@@ -160,6 +161,20 @@ public class WindowEvent : IDisposable
     }
 
     /// <summary>
+    /// フック開始
+    /// </summary>
+    /// <param name="settingsEventInformation">設定するイベント情報</param>
+    public void Hook(
+        List<SettingsEventInformation> settingsEventInformation
+        )
+    {
+        foreach (SettingsEventInformation nowSettingsEventInformation in settingsEventInformation)
+        {
+            Hhook.Add(NativeMethods.SetWinEventHook(nowSettingsEventInformation.EventMin, nowSettingsEventInformation.EventMax, IntPtr.Zero, WinEventProcDelegate, 0, 0, (uint)WINEVENT.WINEVENT_OUTOFCONTEXT));
+        }
+    }
+
+    /// <summary>
     /// フック終了
     /// </summary>
     public void Unhook()
@@ -219,7 +234,7 @@ public class WindowEvent : IDisposable
         switch (eventType)
         {
             case EVENT_CONSTANTS.EVENT_OBJECT_SHOW:
-                return NativeMethods.GetAncestor(hwnd, GetAncestorFlags.GetRoot);
+                return NativeMethods.GetAncestor(hwnd, GetAncestorFlags.GA_ROOT);
             default:
                 return hwnd;
         }

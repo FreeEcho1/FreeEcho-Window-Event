@@ -24,6 +24,9 @@ internal static class NativeMethods
     public static extern bool IsWindow(
         IntPtr hWnd
         );
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public extern static bool IsWindowEnabled(IntPtr hWnd);
     [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
     private static extern int GetWindowLong32(
         IntPtr hWnd,
