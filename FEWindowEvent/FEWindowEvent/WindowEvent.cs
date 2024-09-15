@@ -221,12 +221,12 @@ public class WindowEvent : IDisposable
     }
 
     /// <summary>
-    /// ウィンドウのハンドルではない場合はウィンドウのハンドルを探して取得
+    /// 指定したウィンドウの祖先へのハンドル、又は、指定したウィンドウのハンドルを取得
     /// </summary>
     /// <param name="hwnd">ウィンドウハンドル</param>
     /// <param name="eventType">イベント定数</param>
-    /// <returns>ウィンドウのハンドル</returns>
-    public static IntPtr GetWindowHwnd(
+    /// <returns>ウィンドウのハンドル (一部のイベントのみ祖先へのハンドル、その他は指定されたハンドル。)</returns>
+    public static IntPtr GetAncestorHwnd(
         IntPtr hwnd,
         uint eventType
         )
@@ -268,21 +268,29 @@ public class WindowEvent : IDisposable
                 }
                 break;
             default:
-                if (NativeMethods.IsWindowVisible(hwnd) == false
-                    && NativeMethods.IsWindow(hwnd) == false)
                 {
-                    return false;
-                }
-                if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_EXSTYLE) & (int)WS_EX.WS_EX_TOOLWINDOW) == (int)WS_EX.WS_EX_TOOLWINDOW)
-                {
-                    return false;
-                }
-                // ウィンドウのないUWPアプリかを判定
-                bool isInvisibleUwpApp;
-                _ = NativeMethods.DwmGetWindowAttribute(hwnd, (uint)DWMWINDOWATTRIBUTE.Cloaked, out isInvisibleUwpApp, System.Runtime.InteropServices.Marshal.SizeOf(typeof(bool)));
-                if (isInvisibleUwpApp)
-                {
-                    return false;
+                    if (NativeMethods.IsWindowVisible(hwnd) == false
+                        && NativeMethods.IsWindow(hwnd) == false)
+                    {
+                        return false;
+                    }
+
+                    if ((NativeMethods.GetWindowLongPtr(hwnd, (int)GWL.GWL_EXSTYLE) & (long)WS_EX.WS_EX_TOOLWINDOW) == (long)WS_EX.WS_EX_TOOLWINDOW)
+                    {
+                        return false;
+                    }
+                    IntPtr ancestorHwnd = NativeMethods.GetAncestor(hwnd, GetAncestorFlags.GA_ROOT);
+                    if (ancestorHwnd != hwnd)
+                    {
+                        return false;
+                    }
+
+                    // ウィンドウのないUWPアプリかを判定
+                    _ = NativeMethods.DwmGetWindowAttribute(hwnd, (uint)DWMWINDOWATTRIBUTE.Cloaked, out bool isInvisibleUwpApp, System.Runtime.InteropServices.Marshal.SizeOf(typeof(bool)));
+                    if (isInvisibleUwpApp)
+                    {
+                        return false;
+                    }
                 }
                 break;
         }

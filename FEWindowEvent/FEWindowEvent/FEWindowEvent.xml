@@ -242,13 +242,13 @@
             <param name="dwEventThread"></param>
             <param name="dwmsEventTime"></param>
         </member>
-        <member name="M:FreeEcho.FEWindowEvent.WindowEvent.GetWindowHwnd(System.IntPtr,System.UInt32)">
+        <member name="M:FreeEcho.FEWindowEvent.WindowEvent.GetAncestorHwnd(System.IntPtr,System.UInt32)">
             <summary>
-            ウィンドウのハンドルではない場合はウィンドウのハンドルを探して取得
+            指定したウィンドウの祖先へのハンドル、又は、指定したウィンドウのハンドルを取得
             </summary>
             <param name="hwnd">ウィンドウハンドル</param>
             <param name="eventType">イベント定数</param>
-            <returns>ウィンドウのハンドル</returns>
+            <returns>ウィンドウのハンドル (一部のイベントのみ祖先へのハンドル、その他は指定されたハンドル。)</returns>
         </member>
         <member name="M:FreeEcho.FEWindowEvent.WindowEvent.ConfirmWindowVisible(System.IntPtr,System.UInt32)">
             <summary>
