@@ -2,6 +2,10 @@
 // 「FreeEcho Window Event」 history
 ///////////////////////////////////////////////
 
+Version 1.2.2 - 2024/9/15
+ - 「ConfirmWindowVisible」の判定処理を改善。
+ - 「GetWindowHwnd」を「GetAncestorHwnd」に変更。
+
 Version 1.2.1 - 2024/6/9
  - フック開始の処理を追加。
 
