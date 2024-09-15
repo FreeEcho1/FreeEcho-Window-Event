@@ -71,15 +71,16 @@ public partial class MainWindow : System.Windows.Window
         try
         {
             IntPtr hwnd = e.Hwnd;
-            // ウィンドウのハンドルではない場合があるので、
-            //  GetWindowHwndでウィンドウのハンドルを取得している。
-            // ウィンドウのハンドルではなくても良い場合はこの処理は不要。
-            hwnd = FreeEcho.FEWindowEvent.WindowEvent.GetWindowHwnd(e.Hwnd, e.EventType);
+
             // ウィンドウが表示されているかを判定するにはConfirmWindowVisibleを使用する。
             if (FreeEcho.FEWindowEvent.WindowEvent.ConfirmWindowVisible(hwnd, e.EventType) == false)
             {
                 return;
             }
+
+            // 一部のイベントは「ConfirmWindowVisible」では判定不足なので (ウィンドウではない場合がある)、
+            //  「GetAncestorHwnd」で祖先へのハンドルを取得する。
+            hwnd = FreeEcho.FEWindowEvent.WindowEvent.GetAncestorHwnd(e.Hwnd, e.EventType);
 
             string titleName = "";
             string className = "";
